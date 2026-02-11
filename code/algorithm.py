@@ -12,6 +12,7 @@ from evaluation import Evaluator
 from utils import compute_xai_matrix, compute_distance_matrix
 import time
 import numpy as np
+import pandas as pd
 
 import warnings
 warnings.simplefilter('always', UserWarning)
@@ -256,7 +257,7 @@ class ECELPE:
             print('[SUMMARY]')
             print('\tNumber of samples: %i' % (self.__num_samples))
             print('\tNumber of features: %i' % (self.__num_features))
-            print('\tTime spent: %i seconds' % (self.__total_time)')
+            print('\tTime spent: %i seconds' % (self.__total_time))
             print('\n[BEST SOLUTION INFO]')
             print('\tFitness: %.4f' % (self.__best_solution.get_fitness()))
             print('\tNumber of clusters: %i' % (self.__best_solution.get_number_clusters()))
