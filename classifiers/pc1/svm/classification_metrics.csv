@@ -1,0 +1,2 @@
+accuracy,precision,recall,f1,tn,fp,fn,tp
+0.9279279279279279,0.0,0.0,0.0,309,0,24,0
