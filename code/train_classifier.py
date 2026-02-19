@@ -9,6 +9,7 @@ from sklearn.svm import SVC
 from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 import joblib
 import json
 
@@ -94,6 +95,7 @@ def train(dataset_name, seed: int =123456, classifier_name: str = 'rf', normaliz
 
     if save:
         save_results(dataset_name, classifier_name, classifier, false_positives_values, false_negatives_values, data.columns)
+        save_classification_metrics(dataset_name, classifier_name, y_test, y_pred)
         
     return classifier, false_positives_values, false_negatives_values, data.columns
 
@@ -114,6 +116,37 @@ def save_results(dataset_name, classifier_name, classifier, fp_values, fn_values
 
     with open(path + '/results.json', 'w') as f:
         json.dump({'false_positives_values': fp_values, 'false_negatives_values': fn_values, 'data_columns': list(data_columns)}, f)
+
+
+def save_classification_metrics(dataset_name, classifier_name, y_test, y_pred):
+    """
+    Save classification metrics in CSV (folder: /classifiers/dataset_name/classifier_name)
+    
+    :param dataset_name: Name of the dataset
+    :param classifier_name: Classification algorithm trained (rf, svm, xgb)
+    :param: y_test: True labels
+    :param: y_pred: Predicted labels
+    """
+    acc = accuracy_score(y_test, y_pred)
+    prec = precision_score(y_test, y_pred, zero_division=0)
+    rec = recall_score(y_test, y_pred, zero_division=0)
+    f1 = f1_score(y_test, y_pred, zero_division=0)
+    tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+
+    csv_path = "classifiers/" + dataset_name + "/" + classifier_name + '/classification_metrics.csv'
+    row = {
+        'accuracy': acc,
+        'precision': prec,
+        'recall': rec,
+        'f1': f1,
+        'tn': tn,
+        'fp': fp,
+        'fn': fn,
+        'tp': tp
+        
+    }
+    df = pd.DataFrame([row])
+    df.to_csv(csv_path, index=False)
 
 
 def load_results(dataset_name, classifier_name):
@@ -137,3 +170,44 @@ def load_results(dataset_name, classifier_name):
         return classifier, fp_values, fn_values, data_columns
     else:
         raise Exception('Classifier and results not found in folder "classifiers".')
+
+
+def load_metrics_summary(base_dir: str = "classifiers") -> pd.DataFrame:
+    """
+    Read all `classification_metrics.csv` files under the given base directory
+    and return a unified summary DataFrame.
+
+    The expected directory layout is::
+
+        base_dir/
+            <dataset_name>/
+                <classifier_name>/
+                    classification_metrics.csv
+
+    The returned DataFrame always contains ``dataset`` and ``classifier``
+    columns plus whatever metrics appear in the CSV files (accuracy,
+    precision, recall, f1, tn, fp, fn, tp, etc.).
+    """
+    records = []
+    if not os.path.isdir(base_dir):
+        raise FileNotFoundError(f"base directory '{base_dir}' does not exist")
+
+    for dataset in os.listdir(base_dir):
+        dataset_path = os.path.join(base_dir, dataset)
+        if not os.path.isdir(dataset_path):
+            continue
+        for classifier in os.listdir(dataset_path):
+            clf_path = os.path.join(dataset_path, classifier)
+            if not os.path.isdir(clf_path):
+                continue
+            csv_path = os.path.join(clf_path, "classification_metrics.csv")
+            if os.path.exists(csv_path):
+                df = pd.read_csv(csv_path)
+                for _, row in df.iterrows():
+                    rec = {"dataset": dataset, "classifier": classifier}
+                    rec.update(row.to_dict())
+                    records.append(rec)
+    if records:
+        return pd.DataFrame(records)
+    else:
+        return pd.DataFrame(columns=["dataset", "classifier"])
