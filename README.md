@@ -1,6 +1,17 @@
 # CluEx
 Evolutionary Clustering for Explaining Local Prediction Errors
 
+## Code organization
+
+The scripts to run the different steps of the approach are:
+
+1. main_train_classifiers.py: Train and test different classifiers (currently RF, SVM and XGB), for all datasets in the data folder, using the train_classifier.py functions. The list of FP/FN is extracted and classification metrics are computed. Results are saved in /classifiers (sorted by dataset) and a summary of classification metrics is saved in /results.
+
+2. TO-DO (run the evolutionary algorithm)
+
+3. TO-DO (run other clustering algorithms)
+
+4. TO-DO (scripts for specific RQs/experiments)
 
 ## Datasets
 
@@ -19,3 +30,5 @@ This is the list of datasets used for experimentation. The link is the original 
 - qsar-biodeg: https://www.openml.org/search?type=data&status=active&id=1494
 - spambase: https://archive.ics.uci.edu/dataset/94/spambase
 - wdbc: https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic
+
+The script drop_id_column.py can be used to open the dataset, drop the column by name, and save the resulting dataset.
