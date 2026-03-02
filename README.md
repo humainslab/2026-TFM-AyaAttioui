@@ -5,11 +5,11 @@ Evolutionary Clustering for Explaining Local Prediction Errors
 
 The scripts to run the different steps of the approach are:
 
-1. main_train_classifiers.py: Train and test different classifiers (currently RF, SVM and XGB), for all datasets in the data folder, using the train_classifier.py functions. The list of FP/FN is extracted and classification metrics are computed. Results are saved in /classifiers (sorted by dataset) and a summary of classification metrics is saved in /results.
+1. main_train_classifiers.py: Train and test different classifiers (currently RF, SVM and XGB), for all datasets in the data folder, using the train_classifier.py functions. The list of FP/FN is extracted and classification metrics are computed. Results are saved in /classifiers (sorted by dataset) and a summary of classification metrics is saved in /results/classification.
 
-2. TO-DO (run the evolutionary algorithm)
+2. main_clustering_affpropagation.py: Run the affinity propagation clustering algorithm for all sets of errors (FP/FN) previously generated for all datasets and classifiers. This script uses functions from other files (clustering_errors.py, clustering_result.py, clustering_stats.py). The script saves the clusters (distribution and centroid) in txt files for each set of samples analyzed in /results/clustering. A CSV file with clustering metrics is generated too.
 
-3. TO-DO (run other clustering algorithms)
+3. TO-DO (run the evolutionary algorithm)
 
 4. TO-DO (scripts for specific RQs/experiments)
 
