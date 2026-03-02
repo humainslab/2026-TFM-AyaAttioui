@@ -69,7 +69,7 @@ if __name__ == "__main__":
     # Create a summary data frame
     try:
         summary_df = summarize_classification_metrics()
-        results_path = "./results"
+        results_path = "./results/classification"
         if not os.path.exists(results_path):
             os.makedirs(results_path)
         summary_df.to_csv(os.path.join(results_path, "classification_metrics_summary.csv"), index=False)
