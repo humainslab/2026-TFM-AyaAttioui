@@ -1,0 +1,7 @@
+Number of clusters: 2
+Clusters (instance indexes):
+	cluster: 0, instances: [0, 1, 5]
+	cluster: 1, instances: [2, 3, 4, 6, 7]
+Prototype instances:
+	cluster: 0, instance: 5, values:  pelvic_incidence=0.39918805384310185 pelvic_tilt=0.3788390485080392 lumbar_lordosis_angle=0.39377563744600746 sacral_slope=0.3656787441521102 pelvic_radius=0.575874485845533 degree_spondylolisthesis=0.08619244946929099
+	cluster: 1, instance: 6, values:  pelvic_incidence=0.13028726222499876 pelvic_tilt=0.40659196327430414 lumbar_lordosis_angle=0.20292082398759959 sacral_slope=0.09328971007720632 pelvic_radius=0.6650226317251878 degree_spondylolisthesis=0.014174071016988418
