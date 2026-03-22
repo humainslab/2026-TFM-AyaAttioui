@@ -48,12 +48,28 @@ def train(dataset_name, seed: int =123456, classifier_name: str = 'rf', normaliz
         data = load_dataset(dataset_path)
     else:
         raise Exception('Dataset not found in folder "data".')
+    # --- ADDED BY AYA ---
+    # USPS dataset has label in first column (not last), so we adjust X/y split.
+    if dataset_name == "usps_bin":
+        y = data.iloc[:, 0]
+        X = data.iloc[:, 1:]
+    else:
+        y = data.iloc[:, -1]
+        X = data.iloc[:, :-1]
 
-    X = data.drop(data.columns[-1], axis=1)
+
     if normalized:
         scaler = MinMaxScaler()
         X = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
-    y = data[data.columns[-1]]
+    
+
+    # Automatically convert binary labels to 0/1 if needed
+    unique_labels = sorted(y.unique())
+
+    if len(unique_labels) == 2:
+        if unique_labels != [0, 1]:
+            label_mapping = {unique_labels[0]: 0, unique_labels[1]: 1}
+            y = y.replace(label_mapping)
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=seed)
 
