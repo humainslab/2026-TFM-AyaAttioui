@@ -205,3 +205,7 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+venv_tfm/
+2026-TFM-AyaAttioui/
+results/xai/*.pkl
