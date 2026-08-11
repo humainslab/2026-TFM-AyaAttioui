@@ -57,10 +57,20 @@ def train(dataset_name, seed: int =123456, classifier_name: str = 'rf', normaliz
         y = data.iloc[:, -1]
         X = data.iloc[:, :-1]
 
+    num_cols = X.select_dtypes(include=['number']).columns
+    X[num_cols] = X[num_cols].fillna(X[num_cols].median())
+
+    cat_cols = X.select_dtypes(exclude=['number']).columns
+    for col in cat_cols:
+        X[col] = X[col].fillna(X[col].mode()[0])
+
+    if len(cat_cols) > 0:
+        X = pd.get_dummies(X, columns=cat_cols, drop_first=False)
 
     if normalized:
         scaler = MinMaxScaler()
         X = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
+
     
 
     # Automatically convert binary labels to 0/1 if needed
@@ -70,6 +80,10 @@ def train(dataset_name, seed: int =123456, classifier_name: str = 'rf', normaliz
         if unique_labels != [0, 1]:
             label_mapping = {unique_labels[0]: 0, unique_labels[1]: 1}
             y = y.replace(label_mapping)
+
+    elif len(unique_labels) > 2:
+        majority_class = y.value_counts().idxmax()
+        y = y.apply(lambda v: 0 if v == majority_class else 1)
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=seed)
 
@@ -110,10 +124,10 @@ def train(dataset_name, seed: int =123456, classifier_name: str = 'rf', normaliz
     false_negatives = [int(i) for i in false_negatives]
 
     if save:
-        save_results(dataset_name, classifier_name, classifier, false_positives_values, false_negatives_values, data.columns)
-        save_classification_metrics(dataset_name, classifier_name, y_test, y_pred)
-        
-    return classifier, false_positives_values, false_negatives_values, data.columns
+            save_results(dataset_name, classifier_name, classifier, false_positives_values, false_negatives_values, X.columns)
+            save_classification_metrics(dataset_name, classifier_name, y_test, y_pred)
+            
+    return classifier, false_positives_values, false_negatives_values, X.columns
 
 def save_results(dataset_name, classifier_name, classifier, fp_values, fn_values, data_columns):
     """
