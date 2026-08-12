@@ -57,6 +57,10 @@ def train(dataset_name, seed: int =123456, classifier_name: str = 'rf', normaliz
         y = data.iloc[:, -1]
         X = data.iloc[:, :-1]
 
+    valid_idx = y.notna()
+    y = y[valid_idx]
+    X = X[valid_idx]
+    
     num_cols = X.select_dtypes(include=['number']).columns
     X[num_cols] = X[num_cols].fillna(X[num_cols].median())
 
