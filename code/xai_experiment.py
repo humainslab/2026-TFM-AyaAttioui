@@ -24,6 +24,16 @@ datasets = [
     {"name": "kc1",               "path": "data/kc1.csv"},
     {"name": "ozone-level-8hr",   "path": "data/ozone-level-8hr.csv"},
     {"name": "hill_valley",       "path": "data/hill_valley.csv"},
+    {"name": "heart-disease",               "path": "data/heart-disease.csv"},
+    {"name": "credit-approval",             "path": "data/credit-approval.csv"},
+    {"name": "mammographic-mass",           "path": "data/mammographic-mass.csv"},
+    {"name": "bank-marketing",              "path": "data/bank-marketing.csv"},
+    {"name": "contraceptive-method-choice", "path": "data/contraceptive-method-choice.csv"},
+    {"name": "german-credit",               "path": "data/german-credit.csv"},
+    {"name": "adult-census-income",         "path": "data/adult-census-income.csv"},
+    {"name": "horse-colic",                 "path": "data/horse-colic.csv"},
+    {"name": "congressional-voting",        "path": "data/congressional-voting.csv"},
+    {"name": "cylinder-bands",              "path": "data/cylinder-bands.csv"},
 ]
 
 classifiers = ["rf", "svm", "xgb"]
