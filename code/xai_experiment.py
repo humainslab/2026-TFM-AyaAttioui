@@ -62,7 +62,22 @@ for data in datasets:
         y = df.iloc[:, -1]
         X = df.iloc[:, :-1]
 
-  
+    # --- ADDED: drop rows where target is missing ---
+    valid_idx = y.notna()
+    y = y[valid_idx]
+    X = X[valid_idx]
+
+    # --- ADDED: handle missing values ---
+    num_cols = X.select_dtypes(include=['number']).columns
+    X[num_cols] = X[num_cols].fillna(X[num_cols].median())
+    cat_cols = X.select_dtypes(exclude=['number']).columns
+    for col in cat_cols:
+        X[col] = X[col].fillna(X[col].mode()[0])
+
+    # --- ADDED: one-hot encode categorical columns ---
+    if len(cat_cols) > 0:
+        X = pd.get_dummies(X, columns=cat_cols, drop_first=False)
+
     scaler = MinMaxScaler()
     X = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
 
@@ -71,6 +86,10 @@ for data in datasets:
     if len(unique_labels) == 2 and unique_labels != [0, 1]:
         label_mapping = {unique_labels[0]: 0, unique_labels[1]: 1}
         y = y.replace(label_mapping)
+    elif len(unique_labels) > 2:
+        # --- ADDED: binarize multi-class target ---
+        majority_class = y.value_counts().idxmax()
+        y = y.apply(lambda v: 0 if v == majority_class else 1)
 
     # same split as train_classifier.py
     X_train, X_test, y_train, y_test = train_test_split(
