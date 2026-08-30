@@ -40,6 +40,9 @@ for data in datasets:
             continue
 
         X_raw = pd.DataFrame(fp_values + fn_values, columns=raw_columns)
+        for col in X_raw.columns:
+            if pd.api.types.is_numeric_dtype(X_raw[col]):
+                X_raw[col] = X_raw[col].astype(float)
 
         print("FP:", len(fp_values), "FN:", len(fn_values))
         print("Total used for clustering:", len(X_raw))
