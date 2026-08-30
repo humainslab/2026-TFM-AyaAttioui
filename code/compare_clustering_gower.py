@@ -48,6 +48,7 @@ for data in datasets:
             print("Not enough data for clustering")
             continue
 
+        distance_matrix = gower.gower_matrix(X_raw)
 
         for seed in SEEDS:
             ap = AffinityPropagation(affinity='precomputed', random_state=seed)
