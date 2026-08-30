@@ -68,8 +68,13 @@ def train(dataset_name, seed: int =123456, classifier_name: str = 'rf', normaliz
     for col in cat_cols:
         X[col] = X[col].fillna(X[col].mode()[0])
 
+    #copy for Gower distance
+    X_before_encoding = X.copy()
+
     if len(cat_cols) > 0:
         X = pd.get_dummies(X, columns=cat_cols, drop_first=False)
+
+    
 
     if normalized:
         scaler = MinMaxScaler()
@@ -90,6 +95,7 @@ def train(dataset_name, seed: int =123456, classifier_name: str = 'rf', normaliz
         y = y.apply(lambda v: 0 if v == majority_class else 1)
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=seed)
+    X_test_raw = X_before_encoding.loc[X_test.index]
 
     if classifier_name =='rf':
         classifier = RandomForestClassifier(n_estimators=100, random_state=seed, min_samples_split=2,
@@ -124,12 +130,21 @@ def train(dataset_name, seed: int =123456, classifier_name: str = 'rf', normaliz
     for i in false_negatives:
         false_negatives_values.append(list(X_test.values[i]))
 
+    false_positives_values_raw = []
+    for i in false_positives:
+        false_positives_values_raw.append(list(X_test_raw.iloc[i]))
+
+    false_negatives_values_raw = []
+    for i in false_negatives:
+        false_negatives_values_raw.append(list(X_test_raw.iloc[i]))
+
     false_positives = [int(i) for i in false_positives]
     false_negatives = [int(i) for i in false_negatives]
 
     if save:
             save_results(dataset_name, classifier_name, classifier, false_positives_values, false_negatives_values, X.columns)
             save_classification_metrics(dataset_name, classifier_name, y_test, y_pred)
+            save_results_raw(dataset_name, classifier_name, false_positives_values_raw, false_negatives_values_raw, X_before_encoding.columns)
             
     return classifier, false_positives_values, false_negatives_values, X.columns
 
@@ -150,6 +165,39 @@ def save_results(dataset_name, classifier_name, classifier, fp_values, fn_values
 
     with open(path + '/results.json', 'w') as f:
         json.dump({'false_positives_values': fp_values, 'false_negatives_values': fn_values, 'data_columns': list(data_columns)}, f)
+
+def save_results_raw(dataset_name, classifier_name, fp_values_raw, fn_values_raw, raw_columns):
+    """
+    Save raw (non-encoded) FP/FN values, needed for Gower distance
+    (keeps original categorical columns as text instead of one-hot encoded).
+    """
+    path = "classifiers/" + dataset_name + "/" + classifier_name
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    def make_json_safe(values):
+        return [[v.item() if hasattr(v, 'item') else v for v in row] for row in values]
+
+    with open(path + '/results_raw.json', 'w') as f:
+        json.dump({
+            'false_positives_values_raw': make_json_safe(fp_values_raw),
+            'false_negatives_values_raw': make_json_safe(fn_values_raw),
+            'raw_columns': list(raw_columns)
+        }, f)
+
+
+def load_results_raw(dataset_name, classifier_name):
+    """
+    Load raw (non-encoded) FP/FN values for Gower distance.
+    """
+    path = "classifiers/" + dataset_name + "/" + classifier_name + "/results_raw.json"
+    if os.path.exists(path):
+        with open(path, 'r') as f:
+            results = json.load(f)
+        return results['false_positives_values_raw'], results['false_negatives_values_raw'], results['raw_columns']
+    else:
+        raise Exception('Raw results not found for ' + dataset_name + '/' + classifier_name)
+
 
 
 def save_classification_metrics(dataset_name, classifier_name, y_test, y_pred):
