@@ -1,0 +1,61 @@
+<grammar>
+    <!-- Root -->
+    <root-symbol>workflow</root-symbol>
+
+    <!-- Terminals -->
+    <terminals>
+
+        <!-- RANDOM FOREST -->
+        <terminal name="randomForest" type="tree" code="sklearn.ensemble.RandomForestClassifier"/>
+            <terminal name="rf::n_estimators" type="int" lower="50" upper="200" default="100"/>
+            <terminal name="rf::criterion" type="categorical" values="gini;entropy" default="gini"/>
+            <terminal name="rf::max_features" type="union">
+                <union type="categorical" values="sqrt;log2" default="sqrt"/>
+                <union type="float" lower="0.3" upper="1.0" default="0.5"/>
+            </terminal>
+            <terminal name="rf::min_samples_split" type="int" lower="2" upper="20" default="2"/>
+            <terminal name="rf::min_samples_leaf" type="int" lower="1" upper="20" default="1"/>
+
+        <!-- SVM -->
+        <terminal name="svc" type="linear" code="sklearn.svm.SVC"/>
+            <terminal name="svc::C" type="float" lower="0.01" upper="25" default="1" log="True"/>
+            <terminal name="svc::kernel" type="categorical" values="linear;rbf;poly" default="linear"/>
+            <terminal name="svc::gamma" type="categorical" values="scale;auto" default="scale"/>
+            <terminal name="svc::probability" type="fix_bool" value="True"/>
+
+        <!-- XGBOOST -->
+        <terminal name="xgbClassifier" type="tree" code="xgboost.XGBClassifier"/>
+            <terminal name="xgb::n_estimators" type="int" lower="50" upper="200" default="100"/>
+            <terminal name="xgb::max_depth" type="int" lower="2" upper="10" default="6"/>
+            <terminal name="xgb::learning_rate" type="float" lower="0.01" upper="0.3" default="0.1" log="True"/>
+            <terminal name="xgb::subsample" type="float" lower="0.5" upper="1.0" default="1.0"/>
+
+    </terminals>
+
+    <!-- Non terminals -->
+    <non-terminals>
+
+        <non-terminal name="workflow">
+            <production-rule>classifier</production-rule>
+        </non-terminal>
+
+        <non-terminal name="classifier">
+            <production-rule>randomForest(randomForest_hp)</production-rule>
+            <production-rule>svc(svc_hp)</production-rule>
+            <production-rule>xgbClassifier(xgbClassifier_hp)</production-rule>
+        </non-terminal>
+
+        <non-terminal name="randomForest_hp">
+            <production-rule>rf::n_estimators;rf::criterion;rf::max_features;rf::min_samples_split;rf::min_samples_leaf</production-rule>
+        </non-terminal>
+
+        <non-terminal name="svc_hp">
+            <production-rule>svc::C;svc::kernel;svc::gamma;svc::probability</production-rule>
+        </non-terminal>
+
+        <non-terminal name="xgbClassifier_hp">
+            <production-rule>xgb::n_estimators;xgb::max_depth;xgb::learning_rate;xgb::subsample</production-rule>
+        </non-terminal>
+
+    </non-terminals>
+</grammar>
