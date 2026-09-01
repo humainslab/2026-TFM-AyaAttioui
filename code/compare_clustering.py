@@ -37,10 +37,10 @@ datasets = [
     {"name": "heart-disease",               "path": "data/heart-disease.csv"},
     {"name": "credit-approval",             "path": "data/credit-approval.csv"},
     {"name": "mammographic-mass",           "path": "data/mammographic-mass.csv"},
-    {"name": "bank-marketing",              "path": "data/bank-marketing.csv"},
+    #{"name": "bank-marketing",              "path": "data/bank-marketing.csv"},
     {"name": "contraceptive-method-choice", "path": "data/contraceptive-method-choice.csv"},
     {"name": "german-credit",               "path": "data/german-credit.csv"},
-    {"name": "adult-census-income",         "path": "data/adult-census-income.csv"},
+    #{"name": "adult-census-income",         "path": "data/adult-census-income.csv"},
     {"name": "horse-colic",                 "path": "data/horse-colic.csv"},
     {"name": "congressional-voting",        "path": "data/congressional-voting.csv"},
     {"name": "cylinder-bands",              "path": "data/cylinder-bands.csv"},
@@ -162,6 +162,7 @@ for data in datasets:
                         ("GWO", mealpy.swarm_based.GWO.OriginalGWO(epoch=ep, pop_size=pop)),
                         ("PSO", mealpy.swarm_based.PSO.OriginalPSO(epoch=ep, pop_size=pop)),
                         ("WOA", mealpy.swarm_based.WOA.OriginalWOA(epoch=ep, pop_size=pop)),
+                        ("GA", mealpy.evolutionary_based.GA.BaseGA(epoch=ep, pop_size=pop)),
                     ]
 
                     for name, optimizer in algorithms:
@@ -277,7 +278,8 @@ for data in datasets:
 df = pd.DataFrame(results)
 os.makedirs("results/clustering", exist_ok=True)
 
-df.to_csv("results/clustering/comparison_results.csv", index=False)
+#df.to_csv("results/clustering/comparison_results.csv", index=False)
+df.to_csv("results/clustering/comparison_results_GA.csv", index=False)
 
 group_cols = ["dataset", "classifier", "method", "pop_size", "iterations"]
 df_avg = df.groupby(group_cols, dropna=False).agg(
@@ -291,6 +293,7 @@ df_avg = df.groupby(group_cols, dropna=False).agg(
     n_seeds           = ("seed",             "count"),
 ).reset_index()
 
-df_avg.to_csv("results/clustering/results_avg.csv")
+#df_avg.to_csv("results/clustering/results_avg.csv")
+df_avg.to_csv("results/clustering/results_avg_GA.csv")
 print("Results saved")
 
