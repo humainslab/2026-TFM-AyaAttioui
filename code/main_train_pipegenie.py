@@ -12,7 +12,7 @@ SEEDS_10 = SEEDS_30[:10]
 GENERATIONS = 20
 POP_SIZE = 30
 ELITE_SIZE = 5
-N_JOBS = 4
+N_JOBS = 1
 
 
 def get_imbalance_category(dataset_name, data_path="data"):
@@ -48,6 +48,11 @@ if __name__ == "__main__":
         print(f"{'='*60}")
 
         for seed in seeds:
+            result_path = f"classifiers/{dataset_name}/pipegenie/results_seed{seed}.json"
+            if os.path.exists(result_path):
+                print(f"  --- seed {seed} déjà fait, on saute ---")
+                continue
+             
             print(f"\n  --- seed {seed} ---")
             try:
                 train_pipegenie(
