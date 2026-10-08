@@ -1,6 +1,6 @@
 import pandas as pd
-import os
-from train_classifier_pipegenie import train_pipegenie
+import os, sys, signal, subprocess
+#from train_classifier_pipegenie import train_pipegenie
 
 EXCLUDED = {"bank-marketing", "adult-census-income"}
 
@@ -13,7 +13,7 @@ GENERATIONS = 20
 POP_SIZE = 30
 ELITE_SIZE = 5
 N_JOBS = 1
-
+SEED_TIMEOUT = 2 * 3600
 
 def get_imbalance_category(dataset_name, data_path="data"):
     """Compute imbalance category the same way as analyze_imbalance_fpfn.py"""
@@ -49,22 +49,30 @@ if __name__ == "__main__":
 
         for seed in seeds:
             result_path = f"classifiers/{dataset_name}/pipegenie/results_seed{seed}.json"
+            timeout_path = f"classifiers/{dataset_name}/pipegenie/timeout_seed{seed}.txt"
             if os.path.exists(result_path):
                 print(f"  --- seed {seed} déjà fait, on saute ---")
                 continue
+            if os.path.exists(timeout_path):                                               
+                print(f"  --- seed {seed} timeout avant, on saute ---")
+                continue
              
             print(f"\n  --- seed {seed} ---")
+            cmd = [sys.executable, "-u", "code/run_one_seed.py", dataset_name, str(seed),
+                   str(GENERATIONS), str(POP_SIZE), str(ELITE_SIZE), str(N_JOBS)]
+            p = subprocess.Popen(cmd, start_new_session=True)
             try:
-                train_pipegenie(
-                    dataset_name,
-                    seed=seed,
-                    generations=GENERATIONS,
-                    pop_size=POP_SIZE,
-                    elite_size=ELITE_SIZE,
-                    n_jobs=N_JOBS,
-                )
-            except Exception as e:
-                print(f"  [ERROR] {dataset_name} seed={seed}: {e}")
-                continue
+                p.wait(timeout=SEED_TIMEOUT)
+
+            except subprocess.TimeoutExpired:
+                # kill the process and all its children (loky workers)
+                os.killpg(p.pid, signal.SIGKILL)
+                p.wait()
+                print(f"  [TIMEOUT] {dataset_name} seed={seed}: more than {SEED_TIMEOUT} sec, seed skipped", flush=True)
+
+                # remember it, so we don't lose the same time at the next run
+                os.makedirs(f"classifiers/{dataset_name}/pipegenie", exist_ok=True)
+                with open(timeout_path, "w") as f:
+                    f.write(f"timeout after {SEED_TIMEOUT} sec\n")
 
     print("\nAll PipeGenie runs complete.")

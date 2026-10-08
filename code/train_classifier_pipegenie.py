@@ -63,7 +63,7 @@ def train_pipegenie(dataset_name, seed: int = 123456, grammar: str = "code/gramm
     elif len(unique_labels) > 2:
         majority_class = y.value_counts().idxmax()
         y = y.apply(lambda v: 0 if v == majority_class else 1)
-
+    y = y.astype(int)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=seed)
 
     outdir = f"classifiers/{dataset_name}/pipegenie/pipegenie_run_seed{seed}"
