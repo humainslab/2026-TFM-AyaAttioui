@@ -220,3 +220,5 @@ __marimo__/
 .venv-pipegenie/
 pipegenie-examples/
 test-results/
+classifiers/*/pipegenie/pipegenie_run_seed*/
+*.tar.gz
